@@ -1,4 +1,4 @@
-package com.ll.value
+package com.ll.transformation.value
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
@@ -7,16 +7,16 @@ import org.apache.spark.{SparkConf, SparkContext}
  * @Author lin_li
  * @Date 2022/1/5 21:34
  */
-object mapPartitions_value01 {
+object sample_value {
   def main(args: Array[String]): Unit = {
     val conf: SparkConf = new SparkConf().setAppName("map").setMaster("local[*]")
     val sc = new SparkContext(conf)
 
-    val mapRDD: RDD[Int] = sc.makeRDD(List(1, 2, 3, 4))
-    mapRDD.mapPartitions(_.map(_*2)).collect().foreach(println)
+    val rdd: RDD[Int] = sc.makeRDD(List(1, 2, 3, 4),2)
+    rdd.sample(true,2).collect().foreach(println)
+
 
     sc.stop()
-
 
   }
 
