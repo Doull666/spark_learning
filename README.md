@@ -94,7 +94,7 @@ spark学习
     - 分区内 分区间 处理逻辑相同
 9. countByKey()
     - 统计每个 key 出现的次数
-10. save相关算子
+10. save相关算
     - saveAsTextFile(path)保存成Text文件
         1. 将数据集的元素以textfile的形式保存到HDFS文件系统或者其他支持的文件系统
         2. 对于每个元素，Spark将会调用toString方法，将它装换为文件中的文本
@@ -108,3 +108,23 @@ spark学习
 11. foreach()
     - foreach 直接打印出来的数据是无先后顺序的
     - collect().foreach 打印的数据是依据原 RDD 的顺序打印的
+## RDD 的依赖关系
+RDD和它依赖的父RDD（s）的关系有两种不同的类型，即窄依赖（narrow dependency）和宽依赖（wide dependency） 
+    - 窄依赖（OneToOneDependency）：以分区为单位，父 RDD 的一个分区数据，只发往子 RDD 的一个分区，则为窄依赖
+    - 宽依赖（ShuffleDependency）：以分区为单位，父 RDD 的一个分区数据，会发往子 RDD 的多个分区，则为宽依赖
+    - 宽依赖往往伴随着 Shuffle 过程
+### Stage任务划分
+1. DAG（Directed Acyclic Graph）有向无环图是由点和线组成的拓扑图形，该图形具有方向，不会闭环
+2. RDD任务切分中间分为：Application、Job、Stage和Task
+    1. Application：初始化一个SparkContext即生成一个Application
+    2. Job：一个Action算子就会生成一个Job
+    3. Stage：Stage等于宽依赖的个数加1
+    4. Task：一个Stage阶段中，最后一个RDD的分区个数就是Task的个数
+
+注意：Application->Job->Stage->Task每一层都是1对n的关系
+
+## RDD持久化
+### RDD Cache缓存
+- RDD 通过 Cache 或者 Persist 方法将前面的计算结果缓存，默认情况下会把数据以序列化的形式缓存在 JVM 的堆内存中
+- 由于 RDD 是懒加载，所以并不是这两个方法被调用时立即缓存，而是触发后面的 action 算子时，该 RDD 将会被缓存在计算节点的内存中，并供后面重用
+- cache操作会增加血缘关系，不改变原有的血缘关系
