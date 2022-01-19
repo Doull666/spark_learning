@@ -128,3 +128,46 @@ RDD和它依赖的父RDD（s）的关系有两种不同的类型，即窄依赖�
 - RDD 通过 Cache 或者 Persist 方法将前面的计算结果缓存，默认情况下会把数据以序列化的形式缓存在 JVM 的堆内存中
 - 由于 RDD 是懒加载，所以并不是这两个方法被调用时立即缓存，而是触发后面的 action 算子时，该 RDD 将会被缓存在计算节点的内存中，并供后面重用
 - cache操作会增加血缘关系，不改变原有的血缘关系
+- 将 cache 缓存创建在行动算子之前，避免运算过多
+### RDD CheckPoint检查点
+1. 检查点是通过将 RDD 中间结果写入磁盘
+2. 为什么要做检查点：由于血缘依赖过长会造成容错成本过高，这样就不如在中间阶段做检查点容错，如果检查点之后有节点出现问题，可以从检查点开始重做血缘，减少了开销。
+3. 检查点存储路径：Checkpoint的数据通常是存储在HDFS等容错、高可用的文件系统
+4. 检查点数据存储格式为：二进制的文件
+5. 检查点切断血缘：在Checkpoint的过程中，该RDD的所有依赖于父RDD中的信息将全部被移除。即检查点将会切断之前的血缘关系
+6. 检查点触发时间：对RDD进行checkpoint操作并不会马上被执行，必须执行Action操作才能触发。
+7. 设置检查点步骤
+    - 设置检查点数据存储路径：sc.setCheckpointDir("./checkpoint1")
+    - 调用检查点方法：wordToOneRdd.checkpoint()
+8. 只增加 checkpoint，没有增加 Cache 缓存打印
+    - 检查点会从头至尾再计算一次 RDD ，并将其存入 checkpoint 中
+9. 增加 checkpoint，也增加 Cache 缓存打印
+    - 检查点会读取 Cache 中的数据，并把数据存至 checkpoint 中
+### 缓存和检查点的区别
+1. Cache缓存只是将数据保存起来，不切断血缘依赖。Checkpoint 检查点切断血缘依赖。
+2. Cache缓存的数据通常存储在磁盘、内存等地方，可靠性低。Checkpoint 的数据通常存储在 HDFS 等容错、高可用的文件系统，可靠性高。
+3. 建议对 checkpoint() 的RDD使用Cache缓存，这样 checkpoint 的job只需从Cache缓存中读取数据即可，否则需要再从头计算一次 RDD。
+### 检查点存储到 HDFS 集群
+注意事项
+1. 设置访问HDFS集群的用户名,`System.setProperty("HADOOP_USER_NAME","chenliu")`
+2. 需要设置路径.需要提前在HDFS集群上创建/checkpoint路径,`sc.setCheckpointDir("hdfs://hadoop102:9000/checkpoint")`                                     
+### 键值对RDD数据分区
+1. Spark目前支持 Hash分区 和 Range分区，和用户 自定义分区
+2. Hash分区 为当前的默认分区
+3. 分区器直接决定了RDD中分区的个数、RDD中每条数据经过Shuffle后进入哪个分区，进而决定了Reduce的个数
+    - 只有Key-Value类型的RDD才有分区器，非Key-Value类型的RDD分区的值是
+    - 每个RDD的分区ID范围：0~(numPartitions - 1)，决定这个值是属于那个分区的
+4. HashPartitioner 分区的原理
+    1. 对于给定的 key，计算其 hashCode，并除以分区的个数取余
+    2. 如果余数小于 0，则这个 key 所属的分区 ID：`余数+分区的个数`
+    3. 如果余数大于或者等于0，则这个 key 所属的分区 ID：`余数`
+5. Ranger 分区
+    - RangePartitioner 作用
+        1. 将一定范围内的数映射到某一个分区内，尽量保证每个分区中数据量均匀
+        2. 分区与分区之间是有序的，一个分区中的元素肯定都是比另一个分区中的元素小或者大，但是分区内的元素是不能保证顺序的
+        3. 简单说就是，将一定范围内的数映射到某一个分区内
+    - 实现过程
+        1. 先从整个 RDD 中采用水塘抽样算法，抽取出样本数据排序，计算出每个分区的最大 key 值，形成一个 Array[KEY] 类型的数据变量 rangeBounds
+        2. 判断 key 在 rangeBounds 中所处的范围，给出该 key 值在下一个 RDD 中的分区 id 下标
+        3. 该分区器要求 RDD 的 Key 类型必须是可以排序的
+        4. 即简而言之，RangePartitioner 先根据 key 进行排序，排完序后按照范围划分，即相邻 key 值得数据，最终大概率排在同一个分区
