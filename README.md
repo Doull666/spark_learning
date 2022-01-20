@@ -171,3 +171,22 @@ RDD和它依赖的父RDD（s）的关系有两种不同的类型，即窄依赖�
         2. 判断 key 在 rangeBounds 中所处的范围，给出该 key 值在下一个 RDD 中的分区 id 下标
         3. 该分区器要求 RDD 的 Key 类型必须是可以排序的
         4. 即简而言之，RangePartitioner 先根据 key 进行排序，排完序后按照范围划分，即相邻 key 值得数据，最终大概率排在同一个分区
+## 数据读取与保存
+1. Spark的数据读取及数据保存可以从两个维度来作区分：文件格式以及文件系统
+2. 文件格式分为：Text文件、Json文件、Csv文件、Sequence文件以及Object文件
+3. 文件系统分为：本地文件系统、HDFS、HBASE以及数据库
+### Text 文件
+1. 存储至本地文件系统
+2. 所存储的文件是可读的
+3. 如果是集群路径：hdfs://hadoop102:9000/input/1.txt
+### Json 文件
+1. 如果JSON文件中每一行就是一个JSON记录，那么可以通过将JSON文件当做文本文件来读取，然后利用相关的JSON库对每一条数据进行JSON解析
+2. 使用RDD读取JSON文件处理很复杂，同时SparkSQL集成了很好的处理JSON文件的方式，所以应用中多是采用SparkSQL处理JSON文件
+### Sequence 文件
+1. SequenceFile文件是Hadoop用来存储二进制形式的key-value对而设计的一种平面文件(Flat File)
+    - SequenceFile 存储格式只支持 (key,value) 类型，即只针对 PairRDD
+### Object 对象文件
+1. 对象文件是将对象序列化后保存的文件，采用Java的序列化机制
+    - Object 存储格式是单一 value 类型，即只支持 value 类型的 RDD
+### 文件系统类数据读取与保存
+1. Spark的整个生态系统与Hadoop是完全兼容的，所以对于Hadoop所支持的文件类型或者数据库类型，Spark也同样支持
