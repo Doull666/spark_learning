@@ -182,11 +182,24 @@ RDD和它依赖的父RDD（s）的关系有两种不同的类型，即窄依赖�
 ### Json 文件
 1. 如果JSON文件中每一行就是一个JSON记录，那么可以通过将JSON文件当做文本文件来读取，然后利用相关的JSON库对每一条数据进行JSON解析
 2. 使用RDD读取JSON文件处理很复杂，同时SparkSQL集成了很好的处理JSON文件的方式，所以应用中多是采用SparkSQL处理JSON文件
-### Sequence 文件
-1. SequenceFile文件是Hadoop用来存储二进制形式的key-value对而设计的一种平面文件(Flat File)
+### Sequence 文件SequenceFile文件是Hadoop用来存储二进制形式的key
+1. -value对而设计的一种平面文件(Flat File)
     - SequenceFile 存储格式只支持 (key,value) 类型，即只针对 PairRDD
 ### Object 对象文件
 1. 对象文件是将对象序列化后保存的文件，采用Java的序列化机制
     - Object 存储格式是单一 value 类型，即只支持 value 类型的 RDD
 ### 文件系统类数据读取与保存
 1. Spark的整个生态系统与Hadoop是完全兼容的，所以对于Hadoop所支持的文件类型或者数据库类型，Spark也同样支持
+## 累加器
+1. 累加器：分布式共享只写变量。（Executor和Executor之间不能读数据）
+2. 累加器用来把Executor端变量信息聚合到Driver端。在Driver程序中定义的变量，在Executor端的每个task都会得到这个变量的一份新的副本，每个task更新这些副本的值后，传回Driver端进行merge。
+### 系统累加器的使用
+1. 累加器定义（SparkContext.accumulator(initialValue)方法），`val sum: LongAccumulator = sc.longAccumulator("sum")`
+2. 累加器添加数据（累加器.add方法）,`sum.add(count)`
+3. 累加器获取数据（累加器.value）,`sum.value`
+4. 注意
+    - 把累加器当作一个只写变量，只在行动算子执行后读它的值
+    - 累加器放在行动算子中执行
+
+
+
