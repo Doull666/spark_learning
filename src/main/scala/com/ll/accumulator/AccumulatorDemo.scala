@@ -13,17 +13,19 @@ object AccumulatorDemo {
     val conf: SparkConf = new SparkConf().setAppName("acc").setMaster("local[*]")
     val sc = new SparkContext(conf)
 
-    val dataRDD: RDD[(String, Int)] = sc.makeRDD(List(("a", 1), ("a", 2), ("a", 3), ("a", 4)))
+    val rdd: RDD[String] = sc.makeRDD(List("Hello", "Hello", "Hello", "Hello", "Hello", "Spark", "Hive"))
 
-    val sum: LongAccumulator = sc.longAccumulator("sum")
-    dataRDD.foreach {
-      case (k, v) => {
-        sum.add(v)
+    //创建累加器
+    val acc = new MyAccumulator
+    sc.register(acc,"demo01")
+
+    rdd.foreach{
+      word=>{
+        acc.add(word)
       }
     }
-    println("-----------------------------------------------")
-    println(sum.value)
 
+    println(acc.value)
     sc.stop()
   }
 }
