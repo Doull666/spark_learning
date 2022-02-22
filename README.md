@@ -1,7 +1,7 @@
 # spark_learning
 spark学习
 
-
+## sparkcore
 ### key-value 类型
 1. paritionBy()
     - 将RDD[K,V]中的K按照指定Partitioner重新进行分区
@@ -211,4 +211,56 @@ RDD和它依赖的父RDD（s）的关系有两种不同的类型，即窄依赖�
     2. 通过广播变量.value，访问该对象的值
     3. 变量只会被发到各个节点一次，作为只读值处理（修改这个值不会影响到别的节点）
 
+## spark sql
+### 什么是 spark sql
+1. Spark SQL是Spark用来处理结构化数据的一个模块，它提供了2个编程抽象：DataFrame 和 DataSet，并且作为分布式SQL查询引擎的作用
+2. spark sql 转化成 RDD，然后提交到集群上执行，大大提高了执行效率
+### spark sql 特点
+1. 易整合
+2. 统一的数据访问方式
+3. 兼容 Hive
+4. 标准的数据连接
+### 什么是 DataFrame
+1. 在Spark中，DataFrame是一种以RDD为基础的分布式数据集，类似于传统数据库中的二维表格
+2. DataFrame 与 RDD 的主要区别在于，前者带有schema元信息，即DataFrame所表示的二维表数据集的每一列都带有名称和类型
+### 什么是 DataSet
+1. DataSet是分布式数据集合，是DataFrame的一个扩展
+    1. 是DataFrame API的一个扩展，是SparkSQL最新的数据抽象
+    2. 用户友好的API风格，既具有类型安全检查也具有DataFrame的查询优化特性
+    3. 用样例类来对DataSet中定义数据的结构信息，样例类中每个属性的名称直接映射到DataSet中的字段名称
+    4. DataSet是强类型的。比如可以有DataSet[Car]，DataSet[Person]
+### SparkSession新的起始点
+1. 在老的版本中，SparkSQL提供两种SQL查询起始点：一个叫SQLContext，用于Spark自己提供的SQL查询；一个叫HiveContext，用于连接Hive的查询
+2. SparkSession是Spark最新的SQL查询起始点，实质上是SQLContext和HiveContext的组合
+### DataFrame
+1. 在Spark SQL中SparkSession是创建DataFrame和执行SQL的入口，创建DataFrame有三种方式：
+    - 通过Spark的数据源进行创建
+    - 从一个存在的RDD进行转换
+        1. 如果需要RDD与DF或者DS之间操作，那么都需要引入 import spark.implicits._  （spark不是包名，而是sparkSession对象的名称）
+    - 从Hive Table进行查询返回
+### DataSet
+1. DataSet是具有强类型的数据集合，需要提供对应的类型信息
 
+### 三者共性
+1. RDD、DataFrame、DataSet 全都是spark平台下的分布式弹性数据集，为处理超大型数据提供便利
+2. 三者都有惰性机制，在进行创建、转换，如map方法时，不会立即执行，只有在遇到Action，如foreach时，三者才会开始遍历运算
+3. 三者有许多共同的函数，如filter，排序等
+4. 在对DataFrame和Dataset进行操作许多操作都需要这个包:import spark.implicits._（在创建好SparkSession对象后尽量直接导入）
+
+### 三者之间相互转换
+- 注意：首先导入隐式转换，import spark.implicits._
+1. RDD->DF
+    - 将 RDD 内部存储的数据用样例类包装：RDD->case class
+    - 将 样例类 包装后的 RDD 数据转化为 DF:RDD.toDF
+2. DF->RDD 
+    - 将 DF 数据转换为RDD:df.rdd
+3. RDD->DS
+    - 将 RDD 内部存储的数据用样例类包装：RDD->case class
+    - 将 样例类 包装后的 RDD 数据转化为 DF:RDD.toDS
+4. DS->RDD 
+       - 将 DF 数据转换为RDD:ds.rdd
+5. DF->DS
+    - DS 是 DF 的一个扩展
+    - 将 DF 转化为 DS 即由简转难，DS是强类型数据集合，即对DF定义一个类型即为DS：DF.as[Person]=>DS[Person]
+6. DS->DF
+    - DS 转化为 DF,即由难转易：ds.toDF
