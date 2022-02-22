@@ -2,6 +2,112 @@
 spark学习
 
 ## sparkcore
+### 1. spark和hadoop的区别
+- Hadoop主要解决，海量数据的存储和海量数据的分析计算
+- Spark是一种基于内存的快速、通用、可扩展的大数据分析计算引擎
+
+**总结：** spark 可以替换hadoop原生的mr计算引擎，以加快数据的计算速度；但是spark无法替代hadoop进行海量数据的存储
+### 2.spark部署模式
+- Local模式：在本地部署单个Spark服务
+- Standalone模式：Spark自带的任务调度模式。（国内常用）
+- YARN模式：Spark使用Hadoop的YARN组件进行资源与任务调度。（国内常用）
+- Mesos模式：Spark使用Mesos平台进行资源与任务的调度
+### 3. Spark 和Hadoop 的根本差异是多个作业之间的数据通信问题 :
+-  Spark 多个作业之间数据通信是基于内存
+- 而 Hadoop 是基于磁盘
+### 4. local 本地模式
+```
+bin/spark-submit \
+--class org.apache.spark.examples.SparkPi \
+--master local[2] \
+./examples/jars/spark-examples_2.11-2.1.1.jar \
+100
+```
+参数|说明
+----|----
+--class|表示要执行程序的主类
+--master *|运行模式的制定
+--master local[2]|本地模式，指定两个core
+spark-examples_2.11-2.1.1.jar|要运行的程序
+100|要运行程序的输入参数
+### 5.spark-shell
+- 用于代码类调试
+- Spark context（sc）：sc是SparkCore程序的入口
+- Spark session（spark）：spark是SparkSQL程序入口
+### 6.Standalone模式
+Standalone模式是Spark自带的资源调动引擎，构建一个由Master + Slave构成的Spark集群，Spark运行在集群中。
+```
+bin/spark-submit \
+--class org.apache.spark.examples.SparkPi \
+--master spark://hadoop166:7077 \
+--executor-memory 2G \
+--total-executor-cores 2 \
+./examples/jars/spark-examples_2.11-2.1.1.jar \
+10
+```
+参数|说明
+----|----
+--class|Spark程序中包含主函数的类
+--master|Spark程序运行的模式
+--executor-memory 1G|指定每个executor可用内存为1G
+--total-executor-cores 2|指定所有executor使用的cpu核数为2个
+--executor-cores|指定每个executor使用的cpu核数
+application-jar|打包好的应用jar，包含依赖
+--master spark://masterIP:7077|指定要连接的集群的master
+--deploy-mode client/cluster |Driver程序运行在哪种模式上
+### 7.  standalone的两种运行模式 
+standalone-client和standalone-cluster两种模式，***主要区别在于：Driver程序的运行节点***
+- standalone-client：Driver程序运行在客户端，适用于交互、调试，可以立即看到程序的输出结果。
+- standalone-cluster：Driver程序运行在由Master启动的Worker节点，适用于生产环境
+### 8.yarn模式
+- spark运用hadoop的YARN的任务调度去执行的在nodemanager上启动的spark的executor进程去完成计算
+- Spark客户端直接连接Yarn，不需要额外构建Spark集群
+### 9. yarn 的两种运行模式
+Spark有yarn-client和yarn-cluster两种模式，***主要区别在于：Driver程序的运行节点***
+- yarn-client：Driver程序运行在客户端，适用于交互、调试，可以立即看到程序的输出结果。
+- yarn-cluster：Driver程序运行在由ResourceManager管理的NodeManager上，再启动的APPMaster，适用于生产环境
+
+**总结：** Driver在集群执行就是集群模式，Driver在客户端执行就是客户端模式
+### 10.RDD概述
+RDD（Resilient Distributed Dataset）叫做弹性分布式数据集，是Spark中最基本的数据抽象。代码中是一个抽象类，它代表一个弹性的、不可变、可分区、里面的元素可并行计算的集合。
+### 11.Transformation转换算子
+####value类型
+算子|说明
+----|----
+map()|一次处理一个分区里面的一个元素
+mapPartitions()|一次处理一个分区的数据  
+mapPartitionsWithIndex()|每个元素跟所在分区号形成一个元组
+flatMap()扁平化|将所有数据放入一个集合中返回
+glom()|将每一个分区变成一个数组
+groupBy()|将相同的key对应的值放入一个迭代器，即相同key的值存放在一个集合中
+filter()|根据条件过滤数据
+sample()|从大量的数据中采样，分为有放回和不放回
+distinct()|对内部元素进行去重
+coalesce()|缩减分区数，用于大数据集过滤后，提高小数据集的执行效率
+repartition()|内部其实执行的是coalesce操作，参数shuffle的默认值为true
+sortBy()|按照数字大小分别实现正序和倒序排序
+
+***map()和mapPartitions()区别***
+- map每次处理一条数据
+- mapPartitions：每次处理一个分区的数据，这个分区的数据处理完之后，原RDD中分区的数据才能释放，可能导致OOM
+- 开发经验：当内存空间较大的时候建议使用mapPartitions()，以提高处理效率
+
+***coalesce和repartition区别***
+- coalesce重新分区，可以选择是否进行shuffle过程。由参数shuffle: Boolean = false/true决定
+- repartition实际上是调用的coalesce，进行shuffle
+- coalesce一般为缩减分区，如果扩大分区，也不会增加分区总数，意义不大。repartition扩大分区执行shuffle，可以达到扩大分区的效果
+
+###双value类型
+算子|说明
+----|----
+intersection()|对两个RDD求交集
+union()|对两个RDD求并集，生成的RDD分区数是源RDD的分区和
+subtract()|对两RDD求差集
+zip()|将两个RDD组合成Key/Value形式的RDD
+
+***zip拉链注意事项***
+- 分区数不同不能拉链
+- 每个分区中元素个数不同不能拉链
 ### key-value 类型
 1. paritionBy()
     - 将RDD[K,V]中的K按照指定Partitioner重新进行分区
