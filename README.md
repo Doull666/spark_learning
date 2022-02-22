@@ -71,7 +71,7 @@ Spark有yarn-client和yarn-cluster两种模式，***主要区别在于：Driver�
 ### 10.RDD概述
 RDD（Resilient Distributed Dataset）叫做弹性分布式数据集，是Spark中最基本的数据抽象。代码中是一个抽象类，它代表一个弹性的、不可变、可分区、里面的元素可并行计算的集合。
 ### 11.Transformation转换算子
-####value类型
+#### value类型
 算子|说明
 ----|----
 map()|一次处理一个分区里面的一个元素
