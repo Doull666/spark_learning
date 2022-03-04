@@ -15,6 +15,9 @@ object SparkSqlHive {
       .getOrCreate()
 
     spark.sql("show databases").show()
+    spark.sql("create table demo(id int)")
+    spark.sql("insert into table demo values(1001)")
+    spark.sql("select * from demo").show()
 
     //關閉鏈接
     spark.stop()
