@@ -2,6 +2,7 @@ package com.ll.sparksql.test
 
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
+
 /**
  * @Author lin_li
  * @Date 2022/2/22 14:42
@@ -9,10 +10,12 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 object SparkSqlTest {
   def main(args: Array[String]): Unit = {
     //1.创建一个SparkSession对象
-    val spark: SparkSession = SparkSession.builder().appName("SparkSql").master("local[*]").getOrCreate()
+    val session: SparkSession = SparkSession.builder().appName("SparkSql").master("local[*]").getOrCreate()
+
+    import session.implicits._
 
     //2.创建一个DataFrame
-    val df: DataFrame = spark.read.json("src/main/resources/person.json")
+    val df: DataFrame = session.read.json("src/main/resources/person.json")
 
     //3.打印数据
     df.show()
@@ -21,7 +24,8 @@ object SparkSqlTest {
     df.createOrReplaceTempView("people")
 
     //5.使用sql风格
-    spark.sql("select name from people").show()
+    session.sql("select name from people").show()
+    df.filter($"age">20).show()
 
     println("----------------------------")
     //6.使用DSL
@@ -29,6 +33,6 @@ object SparkSqlTest {
 
 
     //4.关闭连接
-    spark.stop()
+    session.stop()
   }
 }
