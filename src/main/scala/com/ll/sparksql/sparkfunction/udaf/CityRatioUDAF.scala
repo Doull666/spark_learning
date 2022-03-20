@@ -8,7 +8,7 @@ import org.apache.spark.sql.types.{DataType, LongType, MapType, StringType, Stru
  * @Author lin_li
  * @Date 2022/3/11 17:32
  */
-case class CityRatioUDAF extends UserDefinedAggregateFunction {
+case class CityRatioUDAF() extends UserDefinedAggregateFunction {
   //输入参数类型
   override def inputSchema: StructType = StructType(StructField("city", StringType) :: Nil)
 
@@ -23,7 +23,8 @@ case class CityRatioUDAF extends UserDefinedAggregateFunction {
 
   //初始化缓冲区
   override def initialize(buffer: MutableAggregationBuffer): Unit = {
-    buffer(0) = Map[String, Long]
+    import scala.collection.mutable
+    buffer(0) = Map[String, Long]()
     buffer(1) = 0L
   }
 

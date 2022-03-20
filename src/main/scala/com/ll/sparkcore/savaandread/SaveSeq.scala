@@ -7,6 +7,7 @@ import org.apache.spark.{SparkConf, SparkContext}
  * @Author lin_li
  * @Date 2022/1/20 19:58
  */
+/*
 object SaveSeq {
   def main(args: Array[String]): Unit = {
     val conf: SparkConf = new SparkConf().setAppName("text").setMaster("local[*]")
@@ -21,3 +22,4 @@ object SaveSeq {
     sc.stop()
   }
 }
+*/

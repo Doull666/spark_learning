@@ -370,3 +370,8 @@ RDD和它依赖的父RDD（s）的关系有两种不同的类型，即窄依赖�
     - 将 DF 转化为 DS 即由简转难，DS是强类型数据集合，即对DF定义一个类型即为DS：DF.as[Person]=>DS[Person]
 6. DS->DF
     - DS 转化为 DF,即由难转易：ds.toDF
+
+### 对于存在 kerberos 认证的大数据集群，连接 hive 时，需要进行 kerberos 认证
+1. 导入配置文件置 resources 目录下:core-site.xml、hdfs-site.xml、hive-site.xml、yarn-site.xml、krb5.conf、supergroup.keytab
+2. `System.setProperty("java.security.krb5.conf", "src/main/resources/krb5.conf")`
+3. `UserGroupInformation.loginUserFromKeytab("supergroup", "src/main/resources/supergroup.keytab")`
