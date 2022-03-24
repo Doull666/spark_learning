@@ -17,7 +17,7 @@ object SparkSqlHive {
       .enableHiveSupport()
       .getOrCreate()
 
-    spark.sql("select * from db_qkgp.std_enterprise limit 10").show(10,false)
+    spark.sql("select * from db_qkgp.std_enterprise limit 10").show(10, false)
 
     //關閉鏈接
     spark.stop()
