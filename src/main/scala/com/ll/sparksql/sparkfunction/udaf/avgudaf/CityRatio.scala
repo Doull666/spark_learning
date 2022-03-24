@@ -1,4 +1,4 @@
-package com.ll.sparksql.sparkfunction.udaf
+package com.ll.sparksql.sparkfunction.udaf.avgudaf
 
 import java.text.DecimalFormat
 

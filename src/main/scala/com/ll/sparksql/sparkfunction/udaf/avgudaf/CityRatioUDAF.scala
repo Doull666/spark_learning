@@ -1,8 +1,8 @@
-package com.ll.sparksql.sparkfunction.udaf
+package com.ll.sparksql.sparkfunction.udaf.avgudaf
 
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
-import org.apache.spark.sql.types.{DataType, LongType, MapType, StringType, StructField, StructType}
+import org.apache.spark.sql.types._
 
 /**
  * @Author lin_li
@@ -23,7 +23,6 @@ case class CityRatioUDAF() extends UserDefinedAggregateFunction {
 
   //初始化缓冲区
   override def initialize(buffer: MutableAggregationBuffer): Unit = {
-    import scala.collection.mutable
     buffer(0) = Map[String, Long]()
     buffer(1) = 0L
   }

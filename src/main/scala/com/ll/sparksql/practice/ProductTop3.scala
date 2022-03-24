@@ -1,7 +1,8 @@
 package com.ll.sparksql.practice
 
-import com.ll.sparksql.sparkfunction.udaf.CityRatioUDAF
+import com.ll.sparksql.sparkfunction.udaf.avgudaf.CityRatioUDAF
 import org.apache.spark.sql.SparkSession
+
 import scala.collection.mutable
 
 /**

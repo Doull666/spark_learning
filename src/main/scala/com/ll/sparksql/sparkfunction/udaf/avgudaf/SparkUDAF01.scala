@@ -1,4 +1,4 @@
-package com.ll.sparksql.sparkfunction.udaf
+package com.ll.sparksql.sparkfunction.udaf.avgudaf
 
 import org.apache.spark.sql.{DataFrame, SparkSession}
 

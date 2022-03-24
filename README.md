@@ -375,3 +375,10 @@ RDD和它依赖的父RDD（s）的关系有两种不同的类型，即窄依赖�
 1. 导入配置文件置 resources 目录下:core-site.xml、hdfs-site.xml、hive-site.xml、yarn-site.xml、krb5.conf、supergroup.keytab
 2. `System.setProperty("java.security.krb5.conf", "src/main/resources/krb5.conf")`
 3. `UserGroupInformation.loginUserFromKeytab("supergroup", "src/main/resources/supergroup.keytab")`
+
+### spark 命令行
+1. bin/spark-shell(***推荐***)
+    1. sc是SparkCore程序的入口
+    2. spark是SparkSQL程序入口
+2. bin/spark-sql
+    1. Spark SQL CLI可以很方便的在本地运行Hive元数据服务以及从命令行执行查询任务
