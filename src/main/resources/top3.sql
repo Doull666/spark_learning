@@ -10,3 +10,11 @@ LEFT JOIN b
 ON a.click_product_id=b.product_id
 LEFT JOIN C
 ON a.city_id=c.city_id;
+
+SELECT
+area,
+product_name,
+count(*) cnt,
+cityratio(city_name)
+FROM mid1
+GROUP  BY area, product_name;
