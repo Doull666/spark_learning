@@ -1,3 +1,4 @@
+/*
 package com.ll.sparksql.top3
 
 import org.apache.hadoop.security.UserGroupInformation
@@ -23,3 +24,4 @@ case class initKerberos() {
       e.printStackTrace()
   }
 }
+*/

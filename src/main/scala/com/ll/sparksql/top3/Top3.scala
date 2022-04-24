@@ -5,7 +5,7 @@ import org.apache.spark.sql.SparkSession
 object Top3 {
   def main(args: Array[String]): Unit = {
     //验证kerbros
-    initKerberos()
+//    initKerberos()
 
     //创建sparkSql入口，即sparkSession
     val spark: SparkSession = SparkSession.builder()

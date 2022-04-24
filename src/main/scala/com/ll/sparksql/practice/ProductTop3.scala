@@ -12,7 +12,7 @@ import scala.collection.mutable
 object ProductTop3 {
   def main(args: Array[String]): Unit = {
     //kerberos验证
-    initKerberos()
+//    initKerberos()
 
     //创建sparksession对象
     val spark: SparkSession = SparkSession.builder()

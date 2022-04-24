@@ -9,7 +9,7 @@ import org.apache.spark.sql.SparkSession
 object SparkSqlHive {
   def main(args: Array[String]): Unit = {
     //验证kerberos认证
-    initKerberos()
+//    initKerberos()
 
     val spark: SparkSession = SparkSession.builder()
       .appName("hive")

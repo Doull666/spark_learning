@@ -215,10 +215,10 @@ zip()|将两个RDD组合成Key/Value形式的RDD
     - foreach 直接打印出来的数据是无先后顺序的
     - collect().foreach 打印的数据是依据原 RDD 的顺序打印的
 ## RDD 的依赖关系
-RDD和它依赖的父RDD（s）的关系有两种不同的类型，即窄依赖（narrow dependency）和宽依赖（wide dependency） 
-    - 窄依赖（OneToOneDependency）：以分区为单位，父 RDD 的一个分区数据，只发往子 RDD 的一个分区，则为窄依赖
-    - 宽依赖（ShuffleDependency）：以分区为单位，父 RDD 的一个分区数据，会发往子 RDD 的多个分区，则为宽依赖
-    - 宽依赖往往伴随着 Shuffle 过程
+RDD和它依赖的父RDD（s）的关系有两种不同的类型，即窄依赖（narrow dependency）和宽依赖（wide dependency）
+   - 窄依赖（OneToOneDependency）：以分区为单位，父 RDD 的一个分区数据，只发往子 RDD 的一个分区，则为窄依赖
+   - 宽依赖（ShuffleDependency）：以分区为单位，父 RDD 的一个分区数据，会发往子 RDD 的多个分区，则为宽依赖
+   - 宽依赖往往伴随着 Shuffle 过程
 ### Stage任务划分
 1. DAG（Directed Acyclic Graph）有向无环图是由点和线组成的拓扑图形，该图形具有方向，不会闭环
 2. RDD任务切分中间分为：Application、Job、Stage和Task

@@ -14,7 +14,7 @@ object Demo01 {
 
     df.show()
 
-    df.write.mode(SaveMode.Append)json("src/main/resources/ddd.json")
+//    df.write.mode(SaveMode.Append)json6("src/main/resources/ddd.json")
 
 
     spark.stop()
