@@ -364,7 +364,7 @@ RDD和它依赖的父RDD（s）的关系有两种不同的类型，即窄依赖�
     - 将 RDD 内部存储的数据用样例类包装：RDD->case class
     - 将 样例类 包装后的 RDD 数据转化为 DF:RDD.toDS
 4. DS->RDD 
-       - 将 DF 数据转换为RDD:ds.rdd
+       - 将 DS 数据转换为RDD:ds.rdd
 5. DF->DS
     - DS 是 DF 的一个扩展
     - 将 DF 转化为 DS 即由简转难，DS是强类型数据集合，即对DF定义一个类型即为DS：DF.as[Person]=>DS[Person]
@@ -382,3 +382,33 @@ RDD和它依赖的父RDD（s）的关系有两种不同的类型，即窄依赖�
     2. spark是SparkSQL程序入口
 2. bin/spark-sql
     1. Spark SQL CLI可以很方便的在本地运行Hive元数据服务以及从命令行执行查询任务
+
+## spark 出现 shuffle 的原因
+1. spark 之所以出现 shuffle，因为
+   1. 需要把某种具有共同特征的一类数据汇聚到一个计算节点上进行计算
+   2. 这些数据原本分布在各个不同的存储节点上
+   3. 这种，数据打乱再汇聚的过程就是 shuffle
+2. shuffle 原理
+   1. 数据分区打乱重组
+3. shuffle 落盘原因
+   1. 假设现在有很多个分区，且每个分区数据量庞大
+   2. 现要根据某种特性汇聚数据计算
+   3. 如果，shuffle 过程不落盘；则首先会读取所有分区数据，然后将特性a的数据放置0号分区，特性b的数据放置1号分区...。这样，极有可能会出现OOM
+   4. 故，shuffle write 先将数据落盘；shuffle read 再从磁盘中读取数据，以执行后面的 reduce 阶段
+4. 存在 shuffle 过程的为宽依赖
+   1. 宽依赖表示，同一个父 RDD 的 Partition 被多个子 RDD 的 Partition 依赖
+   2. 会引起 shuffle
+
+## Driver 和 Executor 进程
+### Driver
+1. 根据不同的部署模式，driver 可以运行在 master 上，也可以运行在 worker 上
+2. driver 进程就是应用的 main 函数并且会构建 sparkContext 对象，当提交应用后，就会启动一个对应的 driver 进程，driver 本身会根据设置的参数占用一定的资源，主要是 cpu core 和 memory
+3. driver首先会向集群管理者（standalone、yarn、mesos）申请spark应用所需的资源，也就是executor，然后集群管理者会根据spark应用所设置的参数在各个worker上分配一定数量的executor，每个executor都会占用一定数量的cpu和memory。在申请到应用所需的资源后，driver就能开始调度和执行编写的应用代码了
+4. driver进程会将我们编写的spark应用代码拆分成多个stage，每个stage会执行一部分代码片段，并为每个stage创建一批tasks，然后再将这些tasks分配到各个executor中执行
+### Executor
+1. executor进程宿主在 worker 节点上，一个worker可以有多个executor。每个executor会持有一个线程池，每个线程可以执行一个task。executor执行完task后，可以将结果返回给driver
+### Executor and Driver
+1. Driver 将一个 job 划分为多个 stage
+2. stage 有执行的先后顺序，Driver 先将所有资源给到 stage0 ,stage0创建一批task，这些task在executor端执行；执行结束 executor 将stage0的结果返回给driver
+3. Driver 在将所有资源给到 stage1,stage1 创建一批 task,这些task 在executor端执行，输入是 stage0的结果；executor将执行的最终结果返回 Driver
+   
