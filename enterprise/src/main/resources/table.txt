@@ -1,0 +1,2 @@
+ads_hive_detail_branches
+ads_hive_detail_change_records

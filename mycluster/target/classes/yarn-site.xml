@@ -12,27 +12,27 @@
   </property>
   <property>
     <name>yarn.resourcemanager.address</name>
-    <value>qxb-bigdata-namenode-10-2-18-99.intsig.internal:8032</value>
+    <value>hadoop703:8032</value>
   </property>
   <property>
     <name>yarn.resourcemanager.admin.address</name>
-    <value>qxb-bigdata-namenode-10-2-18-99.intsig.internal:8033</value>
+    <value>hadoop703:8033</value>
   </property>
   <property>
     <name>yarn.resourcemanager.scheduler.address</name>
-    <value>qxb-bigdata-namenode-10-2-18-99.intsig.internal:8030</value>
+    <value>hadoop703:8030</value>
   </property>
   <property>
     <name>yarn.resourcemanager.resource-tracker.address</name>
-    <value>qxb-bigdata-namenode-10-2-18-99.intsig.internal:8031</value>
+    <value>hadoop703:8031</value>
   </property>
   <property>
     <name>yarn.resourcemanager.webapp.address</name>
-    <value>qxb-bigdata-namenode-10-2-18-99.intsig.internal:8088</value>
+    <value>hadoop703:8088</value>
   </property>
   <property>
     <name>yarn.resourcemanager.webapp.https.address</name>
-    <value>qxb-bigdata-namenode-10-2-18-99.intsig.internal:8090</value>
+    <value>hadoop703:8090</value>
   </property>
   <property>
     <name>yarn.resourcemanager.client.thread-count</name>
@@ -48,7 +48,7 @@
   </property>
   <property>
     <name>yarn.scheduler.minimum-allocation-mb</name>
-    <value>1024</value>
+    <value>512</value>
   </property>
   <property>
     <name>yarn.scheduler.increment-allocation-mb</name>
@@ -56,7 +56,7 @@
   </property>
   <property>
     <name>yarn.scheduler.maximum-allocation-mb</name>
-    <value>247483</value>
+    <value>6554</value>
   </property>
   <property>
     <name>yarn.scheduler.minimum-allocation-vcores</name>
@@ -68,7 +68,7 @@
   </property>
   <property>
     <name>yarn.scheduler.maximum-allocation-vcores</name>
-    <value>48</value>
+    <value>4</value>
   </property>
   <property>
     <name>yarn.resourcemanager.amliveliness-monitor.interval-ms</name>
@@ -104,7 +104,7 @@
   </property>
   <property>
     <name>yarn.resourcemanager.scheduler.class</name>
-    <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler</value>
+    <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler</value>
   </property>
   <property>
     <name>yarn.resourcemanager.max-completed-applications</name>
@@ -117,9 +117,5 @@
   <property>
     <name>yarn.nodemanager.remote-app-log-dir-suffix</name>
     <value>logs</value>
-  </property>
-  <property>
-    <name>yarn.resourcemanager.principal</name>
-    <value>yarn/_HOST@INTSIG.INTERNAL</value>
   </property>
 </configuration>
