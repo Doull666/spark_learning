@@ -428,3 +428,12 @@ RDD和它依赖的父RDD（s）的关系有两种不同的类型，即窄依赖�
 2. 在写代码过程中，要学会频繁的persist的缓存，每创建一张中间表，就要 enterpriseRdf.persist(StorageLevel.MEMORY_AND_DISK_SER()).createTempView("enterprises_temp_view")
 3. 学会使用过滤 filter,frame.filter("")
 4. 对字段进行去重 frame.dropDuplicates("","")
+
+## Spark 架构剖析
+***每个 worker 节点包含一个或者多个 executor，一个 executor 中又包含多个 task。task 是真正实现并行计算的最小工作单元***
+1. Executor：一个创建在 worker 节点的进程。一个 Executor 有多个 slots(线程) 可以并发执行多个 tasks
+2. Spark 程序进行
+    1. Spark 是懒加载，Spark 计算按兵不动，直到遇到 action 类型的 operator 的时候才会触发一次计算
+    2. Stage 之间的执行是串行的
+    3. 一个 task 只能在一个executor中执行，不能是多个；一个 stage 输出的 partition 数量等于这个 stage 执行 tasks 的数量
+    4. 一个 partition 对应一个 task，一个 task 对应 一个 executor 中的一个 slot，一个 slot 对应物理资源是一个线程 thread
