@@ -437,3 +437,29 @@ RDD和它依赖的父RDD（s）的关系有两种不同的类型，即窄依赖�
     2. Stage 之间的执行是串行的
     3. 一个 task 只能在一个executor中执行，不能是多个；一个 stage 输出的 partition 数量等于这个 stage 执行 tasks 的数量
     4. 一个 partition 对应一个 task，一个 task 对应 一个 executor 中的一个 slot，一个 slot 对应物理资源是一个线程 thread
+
+## 参数分析
+### spark.sql.shuffle.partitions 和 spark.default.parallelism 的区别
+1. spark.sql.shuffle.partitions 针对于 dataframe 的 shuffle read task 的并行度的设置
+2. spark.default.parallelism 针对于 rdd 算子 shufffle read task 的并行度的设置
+3. 以上两个参数对于 spark.sql("") 的 stage 的并行度无法设置，该stage的并行度是hadoop底层根据hdfs文件切分自动设置的
+4. spark-shell/spark-submit若未指定 --num-executor 或 --executor-cores 数量，则默认并行度 spark.default.parallelism=Max(0,2)=2;spark.sql.shuffle.partitions 默认为 200
+#### RDD 算子并行度
+1. 对于 reduceByKey 和 join 这些分布式 shuffle 算子，其 reduce 端的stage默认取 spark.default.parallelism 这个配置项的值作为分区数，即最终输出的文件数
+2. 如果没配置 spark.default.parallelism ，则以 map 端最后一个 RDD 的分区数作为 reduce 端的分区数，即 reduce 端的 Task 数
+
+### --master
+1. --master spark://hadoop166:7077，指定master节点，代表该spark集群模式为standalone模式
+2. --master locl[*]，本地模式，线程数为本地机器CPU的逻辑核数
+3. --master yarn ，yarn模式
+
+### 推荐
+1. 一个 executor 可以并发执行多个 Task，其并行度根据 executor-cores 的数量来决定
+2. 调节源则：尽量将任务分配的资源调节到可以使用的资源的最大限度
+3. Spark 官方推荐：Task 数量应该设置为 Spark 作业总 CPU cores 数量的 2-3 倍
+4. shuffle 写任务，一个 Task 最终输出一个Index File、一个 Data File
+5. shuffle 写磁盘文件缓冲区大小32k，shuffle读磁盘文件缓冲区大小48M
+
+### --conf spark.yarn.executor.memoryOverhead
+1. --conf spark.yarn.executor.memoryOverhead=3G，调节executor堆外内存上限
+2. 调大该参数，会避免某些JVM OOM的异常问题，同时，可以提升整体Spark作业的性能

@@ -1,7 +1,7 @@
 package com.ll.connecthive
 
 import org.apache.spark.{SparkConf, SparkContext}
-import org.apache.spark.sql.{DataFrame, RelationalGroupedDataset, SparkSession}
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.storage.StorageLevel
 
 /**
@@ -21,6 +21,8 @@ object Top3 {
       .config(conf)
       .enableHiveSupport()
       .getOrCreate()
+
+    val sc: SparkContext = spark.sparkContext
 
     //设置 checkpoint 检查点
     spark.sparkContext.setCheckpointDir("/user/ll/checkpoint")
@@ -72,6 +74,9 @@ object Top3 {
         |a
         |where rk<=3
         |""".stripMargin).persist(StorageLevel.MEMORY_AND_DISK_SER).show(100, false)
+
+
+    sc.textFile("/tmp/lin_li/input").flatMap(_.split(" ")).map((_,1)).reduceByKey(_+_).collect()
 
     //断开连接
     spark.stop()
