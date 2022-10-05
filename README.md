@@ -256,12 +256,12 @@ RDD和它依赖的父RDD（s）的关系有两种不同的类型，即窄依赖�
 ### 检查点存储到 HDFS 集群
 注意事项
 1. 设置访问HDFS集群的用户名,`System.setProperty("HADOOP_USER_NAME","chenliu")`
-2. 需要设置路径.需要提前在HDFS集群上创建/checkpoint路径,`sc.setCheckpointDir("hdfs://hadoop102:9000/checkpoint")`                                     
+2. 需要设置路径,需要提前在HDFS集群上创建/checkpoint路径,`sc.setCheckpointDir("hdfs://hadoop102:9000/checkpoint")`                                     
 ### 键值对RDD数据分区
 1. Spark目前支持 Hash分区 和 Range分区，和用户 自定义分区
 2. Hash分区 为当前的默认分区
 3. 分区器直接决定了RDD中分区的个数、RDD中每条数据经过Shuffle后进入哪个分区，进而决定了Reduce的个数
-    - 只有Key-Value类型的RDD才有分区器，非Key-Value类型的RDD分区的值是
+    - 只有Key-Value类型的RDD才有分区器，非Key-Value类型的RDD分区的值是null
     - 每个RDD的分区ID范围：0~(numPartitions - 1)，决定这个值是属于那个分区的
 4. HashPartitioner 分区的原理
     1. 对于给定的 key，计算其 hashCode，并除以分区的个数取余
@@ -450,7 +450,7 @@ RDD和它依赖的父RDD（s）的关系有两种不同的类型，即窄依赖�
 
 ### --master
 1. --master spark://hadoop166:7077，指定master节点，代表该spark集群模式为standalone模式
-2. --master locl[*]，本地模式，线程数为本地机器CPU的逻辑核数
+2. --master local[*]，本地模式，线程数为本地机器CPU的逻辑核数
 3. --master yarn ，yarn模式
 
 ### 推荐
